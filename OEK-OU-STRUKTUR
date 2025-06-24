@@ -1,10 +1,10 @@
 # Definerer $RootOU
-$rootOU = "OU=OKommune,DC=OKommune,DC=ad"
+$rootOU = "OU=OeKommune,DC=OeKommune,DC=ad"
 
-# Lager Root OU / OKommune
-New-ADOrganizationalUnit -Name "OKommune" -Path "DC=OKommune,DC=ad"
+# Lager Root OU / OeKommune
+New-ADOrganizationalUnit -Name "OeKommune" -Path "DC=OeKommune,DC=ad"
 
-# Lager under-OU-er under Root OU / OKommune OU
+# Lager under-OU-er under Root OU / OeKommune OU
 New-ADOrganizationalUnit -Name "Users" -Path $rootOU
 New-ADOrganizationalUnit -Name "Computers" -Path $rootOU
 New-ADOrganizationalUnit -Name "Groups" -Path $rootOU
@@ -12,7 +12,7 @@ New-ADOrganizationalUnit -Name "Servers" -Path $rootOU
 New-ADOrganizationalUnit -Name "Printers" -Path $rootOU
 
 # Redirecter nye datamaskiner til Computers OU
-redircmp "OU=Computers,OU=OKommune,DC=OKommune,DC=ad"
+redircmp "OU=Computers,OU=OeKommune,DC=OeKommune,DC=ad"
 
 # Lager under-OU-er for Users
 New-ADOrganizationalUnit -Name "Ansatte" -Path "OU=Users,$rootOU"
