@@ -12,10 +12,11 @@ New-ADOrganizationalUnit -Name "Servers" -Path $rootOU
 New-ADOrganizationalUnit -Name "Printers" -Path $rootOU
 
 # Redirecter nye datamaskiner til Computers OU
-redircmp "OU=Computers,OU=OeKommune,DC=OeKommune,DC=ad"
+redircmp "OU=Computers,$rootOU"
 
 # Lager under-OU-er for Users
 New-ADOrganizationalUnit -Name "Ansatte" -Path "OU=Users,$rootOU"
+New-ADOrganizationalUnit -Name "ITavd" -Path "OU=Users,$rootOU"
 New-ADOrganizationalUnit -Name "eksterne" -Path "OU=Users,$rootOU"
 
 # Definerer Admin OU under Root OU
@@ -25,3 +26,45 @@ New-ADOrganizationalUnit -Name "Admin" -Path $rootOU
 # Lager under-OU-er under Admin OU
 New-ADOrganizationalUnit -Name "users" -Path $adminOU
 New-ADOrganizationalUnit -Name "Groups" -Path $adminOU
+
+# -----------------------------
+# Lager testbrukere i utvalgte OUs
+# -----------------------------
+
+# Standard passord for testbrukere
+$defaultPassword = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
+
+# Liste over OUs hvor brukere skal opprettes
+$userOUs = @(
+    "OU=Ansatte,OU=Users,$rootOU",
+    "OU=ITavd,OU=Users,$rootOU",
+    "OU=eksterne,OU=Users,$rootOU",
+    "OU=users,$adminOU"
+)
+
+# Funksjon for å lage to testbrukere i hver OU
+foreach ($ou in $userOUs) {
+    if ($ou -match "OU=([^,]+),") {
+        $ouName = $matches[1]
+
+        for ($i = 1; $i -le 2; $i++) {
+            $username = "${ouName}Test$i"
+            $userPrincipalName = "$username@OeKommune.ad"
+
+            # Sjekker om brukeren allerede finnes for å unngå feil
+            if (-not (Get-ADUser -Filter { SamAccountName -eq $username } -ErrorAction SilentlyContinue)) {
+                New-ADUser `
+                    -Name $username `
+                    -GivenName $username `
+                    -Surname "User" `
+                    -SamAccountName $username `
+                    -UserPrincipalName $userPrincipalName `
+                    -AccountPassword $defaultPassword `
+                    -Enabled $true `
+                    -Path $ou `
+                    -PasswordNeverExpires $true `
+                    -ChangePasswordAtLogon $false
+            }
+        }
+    }
+}
