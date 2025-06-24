@@ -1,9 +1,10 @@
 Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
 Install-WindowsFeature -Name DHCP -IncludeManagementTools
+#dns vil bli automatisk installert med "ad-Domain-Services"
 
 
 
-P#romote til domenekontroller
+#romote til domenekontroller
 # Windows PowerShell script for AD DS Deployment
 #
 
@@ -35,11 +36,12 @@ Install-ADDSDomainController `
 -CreateDnsDelegation:$false `
 -CriticalReplicationOnly:$false `
 -DatabasePath "C:\Windows\NTDS" `
--DomainName "OEKOMMUNE" `
+-DomainName "OEKOMMUNE.ad" `
 -InstallDns:$true `
 -LogPath "C:\Windows\NTDS" `
 -NoRebootOnCompletion:$false `
--ReplicationSourceDC "OEK-DC01.OEKOMMUNE" `
+-ReplicationSourceDC "OEK-DC01.OEKOMMUNE.ad" `
 -SiteName "Default-First-Site-Name" `
 -SysvolPath "C:\Windows\SYSVOL" `
 -Force:$true
+
