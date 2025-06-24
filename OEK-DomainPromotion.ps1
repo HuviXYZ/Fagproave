@@ -12,8 +12,8 @@ Install-ADDSForest `
 -CreateDnsDelegation:$false `
 -DatabasePath "C:\Windows\NTDS" `
 -DomainMode "WinThreshold" `
--DomainName "Windwave.ad" `
--DomainNetbiosName "WINDWAVE" `
+-DomainName "OEKOMMUNE.ad" `
+-DomainNetbiosName "OEKOMUNE" `
 -ForestMode "WinThreshold" `
 -InstallDns:$true `
 -LogPath "C:\Windows\NTDS" `
@@ -35,11 +35,11 @@ Install-ADDSDomainController `
 -CreateDnsDelegation:$false `
 -CriticalReplicationOnly:$false `
 -DatabasePath "C:\Windows\NTDS" `
--DomainName "Windwave.ad" `
+-DomainName "OEKOMMUNE" `
 -InstallDns:$true `
 -LogPath "C:\Windows\NTDS" `
 -NoRebootOnCompletion:$false `
--ReplicationSourceDC "DC01.Windwave.ad" `
+-ReplicationSourceDC "OEK-DC01.OEKOMMUNE" `
 -SiteName "Default-First-Site-Name" `
 -SysvolPath "C:\Windows\SYSVOL" `
 -Force:$true
