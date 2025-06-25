@@ -4,10 +4,42 @@ $rootOU = "OU=OeKommune,DC=OeKommune,DC=ad"
 # Lager Root OU / OeKommune
 New-ADOrganizationalUnit -Name "OeKommune" -Path "DC=OeKommune,DC=ad"
 
-# Lager under-OU-er under Root OU / OeKommune OU
+# Lager under-OU-er under Root OU / OeKommune
 New-ADOrganizationalUnit -Name "Users" -Path $rootOU
 New-ADOrganizationalUnit -Name "Computers" -Path $rootOU
 New-ADOrganizationalUnit -Name "Groups" -Path $rootOU
+
+# -----------------------------
+# Lager standardgrupper
+# -----------------------------
+$groupsOU = "OU=Groups,$rootOU"     # peker på OeKommune\Groups
+
+# Eksterne brukere
+New-ADGroup `
+    -Name "external" `
+    -SamAccountName "external" `
+    -GroupCategory Security `
+    -GroupScope Global `
+    -Path $groupsOU `
+    -Description "Gruppe for eksterne brukere"
+
+# Ansatte
+New-ADGroup `
+    -Name "employees" `
+    -SamAccountName "employees" `
+    -GroupCategory Security `
+    -GroupScope Global `
+    -Path $groupsOU `
+    -Description "Gruppe for alle ansatte"
+
+    New-ADGroup `
+    -Name "It" `
+    -SamAccountName "IT" `
+    -GroupCategory Security `
+    -GroupScope Global `
+    -Path $groupsOU `
+    -Description "Gruppe for alle pae ITavd"
+
 New-ADOrganizationalUnit -Name "Servers" -Path $rootOU
 New-ADOrganizationalUnit -Name "Printers" -Path $rootOU
 
@@ -19,22 +51,20 @@ New-ADOrganizationalUnit -Name "Ansatte" -Path "OU=Users,$rootOU"
 New-ADOrganizationalUnit -Name "ITavd" -Path "OU=Users,$rootOU"
 New-ADOrganizationalUnit -Name "eksterne" -Path "OU=Users,$rootOU"
 
-# Definerer Admin OU under Root OU
+# Definerer Admin OU og under-OUer
 $adminOU = "OU=Admin,$rootOU"
 New-ADOrganizationalUnit -Name "Admin" -Path $rootOU
-
-# Lager under-OU-er under Admin OU
 New-ADOrganizationalUnit -Name "users" -Path $adminOU
 New-ADOrganizationalUnit -Name "Groups" -Path $adminOU
 
 # -----------------------------
-# Lager testbrukere i utvalgte OUs
+# Lager ÉN testbruker i hver relevant sub-OU
 # -----------------------------
 
-# Standard passord for testbrukere
-$defaultPassword = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
+# Standard passord
+$defaultPassword = ConvertTo-SecureString "UiB2025!" -AsPlainText -Force
 
-# Liste over OUs hvor brukere skal opprettes
+# Liste over sub-OUs hvor det skal lages én testbruker
 $userOUs = @(
     "OU=Ansatte,OU=Users,$rootOU",
     "OU=ITavd,OU=Users,$rootOU",
@@ -42,29 +72,25 @@ $userOUs = @(
     "OU=users,$adminOU"
 )
 
-# Funksjon for å lage to testbrukere i hver OU
+# Oppretter én testbruker i hver OU
 foreach ($ou in $userOUs) {
     if ($ou -match "OU=([^,]+),") {
         $ouName = $matches[1]
+        $username = "${ouName}Test"
+        $userPrincipalName = "$username@OeKommune.ad"
 
-        for ($i = 1; $i -le 2; $i++) {
-            $username = "${ouName}Test$i"
-            $userPrincipalName = "$username@OeKommune.ad"
-
-            # Sjekker om brukeren allerede finnes for å unngå feil
-            if (-not (Get-ADUser -Filter { SamAccountName -eq $username } -ErrorAction SilentlyContinue)) {
-                New-ADUser `
-                    -Name $username `
-                    -GivenName $username `
-                    -Surname "User" `
-                    -SamAccountName $username `
-                    -UserPrincipalName $userPrincipalName `
-                    -AccountPassword $defaultPassword `
-                    -Enabled $true `
-                    -Path $ou `
-                    -PasswordNeverExpires $true `
-                    -ChangePasswordAtLogon $false
-            }
+        if (-not (Get-ADUser -Filter { SamAccountName -eq $username } -ErrorAction SilentlyContinue)) {
+            New-ADUser `
+                -Name $username `
+                -GivenName $username `
+                -Surname "User" `
+                -SamAccountName $username `
+                -UserPrincipalName $userPrincipalName `
+                -AccountPassword $defaultPassword `
+                -Enabled $true `
+                -Path $ou `
+                -PasswordNeverExpires $true `
+                -ChangePasswordAtLogon $false
         }
     }
 }
