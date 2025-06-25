@@ -77,7 +77,7 @@ foreach ($ou in $userOUs) {
     if ($ou -match "OU=([^,]+),") {
         $ouName = $matches[1]
         $username = "${ouName}Test"
-        $userPrincipalName = "$username@OeKommune.ad"
+        $userPrincipalName = "$username@Oekommdadsune.site"
 
         if (-not (Get-ADUser -Filter { SamAccountName -eq $username } -ErrorAction SilentlyContinue)) {
             New-ADUser `
