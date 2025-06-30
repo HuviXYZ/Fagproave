@@ -14,7 +14,7 @@ Install-ADDSForest `
 -DatabasePath "C:\Windows\NTDS" `
 -DomainMode "WinThreshold" `
 -DomainName "OEKOMMUNE.ad" `
--DomainNetbiosName "OEKOMUNE" `
+-DomainNetbiosName "OEKOMMUNE" `
 -ForestMode "WinThreshold" `
 -InstallDns:$true `
 -LogPath "C:\Windows\NTDS" `
